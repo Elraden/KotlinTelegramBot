@@ -1,7 +1,6 @@
 package org.example
 
 import java.io.File
-
 fun loadDictionary(fileName: String): List<Word> {
     val wordsFile = File(fileName)
     val dictionary = mutableListOf<Word>()
@@ -14,6 +13,14 @@ fun loadDictionary(fileName: String): List<Word> {
     }
 
     return dictionary
+}
+
+fun calculateStatistics(dictionary: List<Word>) {
+    val totalCount = dictionary.size
+    val learnedCount = dictionary.count { it.correctAnswerCount >= 3 }
+
+    val percent = if (totalCount > 0) (learnedCount * 100 / totalCount) else 0
+    println("Выучено $learnedCount из $totalCount слов | $percent%")
 }
 
 fun main() {
@@ -30,7 +37,11 @@ fun main() {
 
         when (userAnswer) {
             Action.LEARN_WORDS.number -> println("Выбран пункт \"${Action.LEARN_WORDS.title}\"")
-            Action.STATS.number -> println("Выбран пункт \"${Action.STATS.title}\"")
+            Action.STATS.number -> {
+                println("Выбран пункт \"${Action.STATS.title}\"")
+                calculateStatistics(dictionary)
+                println()
+            }
             Action.EXIT.number -> {
                 println("Выход из программы")
                 break
