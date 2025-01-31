@@ -4,6 +4,7 @@ import java.io.File
 
 const val LEARNED_THRESHOLD = 3
 const val PERCENT_MULTIPLIER = 100
+const val ANSWER_OPTIONS_COUNT = 4
 
 fun loadDictionary(fileName: String): List<Word> {
     val wordsFile = File(fileName)
@@ -27,6 +28,30 @@ fun calculateStatistics(dictionary: List<Word>) {
     println("Выучено $learnedCount из $totalCount слов | $percent%")
 }
 
+fun learnWords(dictionary: List<Word>) {
+    while (true) {
+        val notLearnedList = dictionary.filter { it.correctAnswerCount < LEARNED_THRESHOLD}
+
+        if (notLearnedList.isEmpty()) {
+            println("Все слова в словаре выучены")
+            break
+        }
+        val questionWords = notLearnedList.shuffled().take(ANSWER_OPTIONS_COUNT)
+
+        val correctAnswer = questionWords.first()
+
+        val answerOptions = questionWords.shuffled()
+
+        println("\n${correctAnswer.original}:")
+        answerOptions.forEachIndexed { index, word ->
+            println(" ${index + 1} - ${word.translate}")
+        }
+
+        print("Введите номер ответа: ")
+        val userAnswer = readlnOrNull()?.toIntOrNull()
+   }
+}
+
 fun main() {
     val dictionary = loadDictionary("words.txt")
 
@@ -40,7 +65,10 @@ fun main() {
         val userAnswer = readlnOrNull()?.toIntOrNull()
 
         when (userAnswer) {
-            Action.LEARN_WORDS.number -> println("Выбран пункт \"${Action.LEARN_WORDS.title}\"")
+            Action.LEARN_WORDS.number -> {
+                println("Выбран пункт \"${Action.LEARN_WORDS.title}\"")
+                learnWords(dictionary)
+            }
             Action.STATS.number -> {
                 println("Выбран пункт \"${Action.STATS.title}\"")
                 calculateStatistics(dictionary)
