@@ -1,6 +1,10 @@
 package org.example
 
 import java.io.File
+
+const val LEARNED_THRESHOLD = 3
+const val PERCENT_MULTIPLIER = 100
+
 fun loadDictionary(fileName: String): List<Word> {
     val wordsFile = File(fileName)
     val dictionary = mutableListOf<Word>()
@@ -17,9 +21,9 @@ fun loadDictionary(fileName: String): List<Word> {
 
 fun calculateStatistics(dictionary: List<Word>) {
     val totalCount = dictionary.size
-    val learnedCount = dictionary.count { it.correctAnswerCount >= 3 }
+    val learnedCount = dictionary.count { it.correctAnswerCount >= LEARNED_THRESHOLD }
 
-    val percent = if (totalCount > 0) (learnedCount * 100 / totalCount) else 0
+    val percent = if (totalCount > 0) (learnedCount * PERCENT_MULTIPLIER / totalCount) else 0
     println("Выучено $learnedCount из $totalCount слов | $percent%")
 }
 
