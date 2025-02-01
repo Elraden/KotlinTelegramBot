@@ -5,6 +5,7 @@ import java.io.File
 const val LEARNED_THRESHOLD = 3
 const val PERCENT_MULTIPLIER = 100
 const val ANSWER_OPTIONS_COUNT = 4
+const val FILE_NAME = "words.txt"
 
 fun loadDictionary(fileName: String): List<Word> {
     val wordsFile = File(fileName)
@@ -30,30 +31,48 @@ fun calculateStatistics(dictionary: List<Word>) {
 
 fun learnWords(dictionary: List<Word>) {
     while (true) {
-        val notLearnedList = dictionary.filter { it.correctAnswerCount < LEARNED_THRESHOLD}
+        val notLearnedList = dictionary.filter { it.correctAnswerCount < LEARNED_THRESHOLD }
 
         if (notLearnedList.isEmpty()) {
             println("Все слова в словаре выучены")
             break
         }
         val questionWords = notLearnedList.shuffled().take(ANSWER_OPTIONS_COUNT)
-
         val correctAnswer = questionWords.first()
-
         val answerOptions = questionWords.shuffled()
+        val correctAnswerId = answerOptions.indexOf(correctAnswer) + 1
 
         println("\n${correctAnswer.original}:")
         answerOptions.forEachIndexed { index, word ->
             println(" ${index + 1} - ${word.translate}")
         }
 
-        print("Введите номер ответа: ")
+        println(" ----------")
+        println(" 0 - Меню")
+
+        print("\nВведите номер ответа: ")
         val userAnswer = readlnOrNull()?.toIntOrNull()
-   }
+
+        when (userAnswer) {
+            0 -> return
+            correctAnswerId -> {
+                println("Правильно!")
+                correctAnswer.correctAnswerCount++
+                saveDictionary((dictionary))
+            }
+            in 1..answerOptions.size -> println("Неправильно! ${correctAnswer.original} – это ${correctAnswer.translate}")
+            else -> println("Введите число от 0 до ${answerOptions.size}")
+        }
+    }
 }
 
+fun saveDictionary(dictionary: List<Word>) {
+    File(FILE_NAME).writeText(
+        dictionary.joinToString("\n") { "${it.original}|${it.translate}|${it.correctAnswerCount}" }
+    )
+}
 fun main() {
-    val dictionary = loadDictionary("words.txt")
+    val dictionary = loadDictionary(FILE_NAME)
 
     while(true) {
         println("Меню:")
