@@ -13,8 +13,13 @@ fun Question.asConsoleString(): String {
 }
 
 fun main() {
-    val fileName = "words.txt"
-    val trainer = LearnWordsTrainer(fileName)
+    val trainer = try {
+        val fileName = "words.txt"
+        LearnWordsTrainer(fileName)
+    } catch (e: Exception) {
+        println("Невозможно загрузить словарь")
+        return
+    }
 
     while(true) {
         println("Меню:")
