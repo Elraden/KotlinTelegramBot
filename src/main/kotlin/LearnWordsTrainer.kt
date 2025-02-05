@@ -30,7 +30,7 @@ class LearnWordsTrainer(
         val notLearnedList = dictionary.filter { it.correctAnswerCount < LEARNED_THRESHOLD }
         if (notLearnedList.isEmpty()) return null
 
-        val questionWords = if(notLearnedList.size < ANSWER_OPTIONS_COUNT) {
+        val questionWords = if (notLearnedList.size < ANSWER_OPTIONS_COUNT) {
             val learnedList = dictionary.filter { it.correctAnswerCount >= LEARNED_THRESHOLD }.shuffled()
             notLearnedList.shuffled().take(ANSWER_OPTIONS_COUNT) +
                     learnedList.take(ANSWER_OPTIONS_COUNT - notLearnedList.size)
