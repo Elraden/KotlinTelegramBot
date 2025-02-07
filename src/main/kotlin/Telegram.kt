@@ -8,12 +8,12 @@ import java.net.http.HttpResponse
 fun main(args: Array<String>) {
     val botToken = args[0]
     var updateId = 0
-    var messageText = "no messages"
+    val defaultMessage = "no messages"
 
     while (true) {
         Thread.sleep(2000)
         val updates: String = getUpdates(botToken, updateId)
-//        println(updates)
+        println(updates)
 
         updateId = Regex("\"update_id\":(\\d+)")
             .find(updates)
@@ -22,10 +22,10 @@ fun main(args: Array<String>) {
             ?.toInt()
             ?.plus(1) ?: updateId
 
-        messageText = Regex("\"text\":\"(.+?)\"")
+        val messageText = Regex("\"text\":\"(.+?)\"")
             .find(updates)
             ?.groups
-            ?.get(1)?.value ?: messageText
+            ?.get(1)?.value ?: defaultMessage
 
         println(messageText)
     }
