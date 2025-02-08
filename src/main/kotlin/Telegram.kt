@@ -9,20 +9,22 @@ fun main(args: Array<String>) {
     val botToken = args[0]
     var updateId = 0
     val defaultMessage = "no messages"
+    val regexUpdateId = Regex("\"update_id\":(\\d+)")
+    val regexMessageText = Regex("\"text\":\"(.+?)\"")
 
     while (true) {
         Thread.sleep(2000)
         val updates: String = getUpdates(botToken, updateId)
         println(updates)
 
-        updateId = Regex("\"update_id\":(\\d+)")
+        updateId = regexUpdateId
             .find(updates)
             ?.groups
             ?.get(1)?.value
-            ?.toInt()
-            ?.plus(1) ?: updateId
+            ?.toIntOrNull()
+            ?.plus(1) ?: continue
 
-        val messageText = Regex("\"text\":\"(.+?)\"")
+        val messageText = regexMessageText
             .find(updates)
             ?.groups
             ?.get(1)?.value ?: defaultMessage
