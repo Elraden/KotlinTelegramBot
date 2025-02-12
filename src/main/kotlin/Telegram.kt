@@ -1,6 +1,9 @@
 package org.example
 
-const val TG_URL = "https://api.telegram.org/bot"
+const val BASE_URL = "https://api.telegram.org/bot"
+const val STATISTICS_CLICKED = "statistics_clicked"
+const val LEARN_WORDS_CLICKED = "learn_words_clicked"
+
 fun main(args: Array<String>) {
     val botToken = args[0]
     val botService = TelegramBotService(botToken)
@@ -50,6 +53,12 @@ fun main(args: Array<String>) {
 
         if (messageText.lowercase() == "/start") {
             botService.sendMenu(chatId)
+        }
+
+        if (data == STATISTICS_CLICKED) {
+            val statistics = trainer.getStatistics()
+            val statisticsString = "Выучено ${statistics.learnedCount} из ${statistics.totalCount} слов | ${statistics.percent}%"
+            botService.sendMessage(chatId, statisticsString)
         }
     }
 
