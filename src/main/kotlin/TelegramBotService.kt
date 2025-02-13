@@ -19,7 +19,7 @@ class TelegramBotService(private val botToken: String) {
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .build()
         } else {
-            requestBuilder.build()
+            requestBuilder.GET().build()
         }
 
         val response: HttpResponse<String> = client.send(request, HttpResponse.BodyHandlers.ofString())
@@ -27,18 +27,18 @@ class TelegramBotService(private val botToken: String) {
     }
 
     fun getUpdates(updateId: Int): String {
-        val url = "$TG_URL$botToken/getUpdates?offset=$updateId"
+        val url = "$BASE_URL$botToken/getUpdates?offset=$updateId"
         return sendRequest(url)
     }
 
     fun sendMessage(chatId: Long, text: String) {
         val encoded = URLEncoder.encode(text, StandardCharsets.UTF_8)
-        val url = "$TG_URL$botToken/sendMessage?chat_id=$chatId&text=$encoded"
+        val url = "$BASE_URL$botToken/sendMessage?chat_id=$chatId&text=$encoded"
         sendRequest(url)
     }
 
     fun sendMenu(chatId: Long) {
-        val sendMessage = "$TG_URL$botToken/sendMessage"
+        val sendMessage = "$BASE_URL$botToken/sendMessage"
         val sendMenuBody = """
             {
             	"chat_id": $chatId,
