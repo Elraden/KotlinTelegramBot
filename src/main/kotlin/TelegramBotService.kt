@@ -7,6 +7,8 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
 
+const val CALLBACK_DATA_ANSWER_PREFIX = "answer_"
+
 class TelegramBotService(private val botToken: String) {
     private val client: HttpClient = HttpClient.newHttpClient()
 
@@ -60,5 +62,29 @@ class TelegramBotService(private val botToken: String) {
             }
         """.trimIndent()
         sendRequest(sendMessage, "POST", sendMenuBody)
+    }
+
+    fun sendQuestion(chatId: Long, question: Question) {
+        val sendMessage = "$BASE_URL$botToken/sendMessage"
+        val answers = question.variants.mapIndexed {index, word ->
+            """
+                {
+                    "text": "${word.translate}",
+                    "callback_data": "$CALLBACK_DATA_ANSWER_PREFIX$index"
+                }
+            """.trimIndent()
+        }.joinToString(",")
+
+        val body = """
+            {
+            	"chat_id": $chatId,
+            	"text": "${question.correctAnswer.original}",
+            	"reply_markup": {
+            		"inline_keyboard": [[$answers]]
+            	}
+            }
+        """.trimIndent()
+
+        sendRequest(sendMessage, "POST", body)
     }
 }
