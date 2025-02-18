@@ -78,6 +78,21 @@ fun main(args: Array<String>) {
         if (data == LEARN_WORDS_CLICKED) {
             checkNextQuestionAndSend(trainer, botService, chatId)
         }
+
+        if (data.startsWith(CALLBACK_DATA_ANSWER_PREFIX)) {
+            val userAnswerIndex = data.substringAfter(CALLBACK_DATA_ANSWER_PREFIX).toInt()
+            val isCorrectAnswer = trainer.checkAnswer(userAnswerIndex)
+
+            if (isCorrectAnswer) {
+                botService.sendMessage(chatId, "Правильно!")
+            } else {
+                val correctWord = trainer.question?.correctAnswer
+                if (correctWord != null) {
+                    botService.sendMessage(chatId, "Неправильно! ${correctWord.original} – это ${correctWord.translate}")
+                }
+            }
+            checkNextQuestionAndSend(trainer, botService, chatId)
+        }
     }
 
 }
