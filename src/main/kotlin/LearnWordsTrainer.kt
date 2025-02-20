@@ -22,7 +22,7 @@ data class Question(
 class LearnWordsTrainer(
     private val fileName: String
 ) {
-    private var question: Question? = null
+    internal var question: Question? = null
     private val dictionary = loadDictionary(fileName)
 
     fun getStatistics(): Statistics {
