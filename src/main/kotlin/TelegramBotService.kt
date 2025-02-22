@@ -1,5 +1,6 @@
 package org.example
 
+import kotlinx.serialization.json.Json
 import java.net.URI
 import java.net.URLEncoder
 import java.net.http.HttpClient
@@ -28,7 +29,7 @@ class TelegramBotService(private val botToken: String) {
         return response.body()
     }
 
-    fun getUpdates(updateId: Int): String {
+    fun getUpdates(updateId: Long): String {
         val url = "$BASE_URL$botToken/getUpdates?offset=$updateId"
         return sendRequest(url)
     }
@@ -39,52 +40,31 @@ class TelegramBotService(private val botToken: String) {
         sendRequest(url)
     }
 
-    fun sendMenu(chatId: Long) {
+    fun sendMenu(json: Json, chatId: Long) {
         val sendMessage = "$BASE_URL$botToken/sendMessage"
-        val sendMenuBody = """
-            {
-            	"chat_id": $chatId,
-            	"text": "Основное меню",
-            	"reply_markup": {
-            		"inline_keyboard": [
-            			[
-            				{
-            					"text": "Изучить слова",
-            					"callback_data": "learn_words_clicked"
-            				},
-            				{
-            					"text": "Статистика",
-            					"callback_data": "statistics_clicked"					
-            				}	
-            			]
-            		]
-            	}
-            }
-        """.trimIndent()
-        sendRequest(sendMessage, "POST", sendMenuBody)
+
+        val inlineKeyboardLearnWords = InlineKeyboard(text = "Изучать слова", callbackData = LEARN_WORDS_CLICKED)
+        val inlineKeyboardStatistics = InlineKeyboard(text = "Статистика", callbackData = STATISTICS_CLICKED)
+        val replyMarkup = ReplyMarkup(listOf(listOf(inlineKeyboardLearnWords, inlineKeyboardStatistics)))
+        val requestBody = SendMessageRequest(chatId = chatId,text = "Основное меню", replyMarkup = replyMarkup)
+
+        val requestBodyString = json.encodeToString(requestBody)
+        sendRequest(sendMessage, "POST", requestBodyString)
     }
 
-    fun sendQuestion(chatId: Long, question: Question) {
+    fun sendQuestion(json: Json, chatId: Long, question: Question) {
         val sendMessage = "$BASE_URL$botToken/sendMessage"
-        val answers = question.variants.mapIndexed {index, word ->
-            """
-                {
-                    "text": "${word.translate}",
-                    "callback_data": "$CALLBACK_DATA_ANSWER_PREFIX$index"
-                }
-            """.trimIndent()
-        }.joinToString(",")
 
-        val body = """
-            {
-            	"chat_id": $chatId,
-            	"text": "${question.correctAnswer.original}",
-            	"reply_markup": {
-            		"inline_keyboard": [[$answers]]
-            	}
-            }
-        """.trimIndent()
+        val replyMarkup = ReplyMarkup(
+            listOf(question.variants.mapIndexed { index, word ->
+                InlineKeyboard(
+                     "$CALLBACK_DATA_ANSWER_PREFIX$index", word.translate,
+                )
+            })
+        )
+        val requestBody = SendMessageRequest(chatId, question.correctAnswer.original, replyMarkup)
+        val requestBodyString = json.encodeToString(requestBody)
 
-        sendRequest(sendMessage, "POST", body)
+        sendRequest(sendMessage, "POST", requestBodyString)
     }
 }
