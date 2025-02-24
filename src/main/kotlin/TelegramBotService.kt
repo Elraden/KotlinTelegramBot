@@ -45,7 +45,18 @@ class TelegramBotService(private val botToken: String) {
 
         val inlineKeyboardLearnWords = InlineKeyboard(text = "Изучать слова", callbackData = LEARN_WORDS_CLICKED)
         val inlineKeyboardStatistics = InlineKeyboard(text = "Статистика", callbackData = STATISTICS_CLICKED)
-        val replyMarkup = ReplyMarkup(listOf(listOf(inlineKeyboardLearnWords, inlineKeyboardStatistics)))
+        val inlineKeyboardReset = InlineKeyboard(text = "Сбросить прогресс", callbackData = RESET_CLICKED)
+        val replyMarkup = ReplyMarkup(
+            listOf(
+                listOf(
+                    inlineKeyboardLearnWords,
+                    inlineKeyboardStatistics
+                ),
+                listOf(
+                    inlineKeyboardReset,
+                )
+            )
+        )
         val requestBody = SendMessageRequest(chatId = chatId,text = "Основное меню", replyMarkup = replyMarkup)
 
         val requestBodyString = json.encodeToString(requestBody)
